@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  READER
+  ADMIN
+}
+
+model User {
+  id           String       @id @default(cuid())
+  name         String?
+  email        String       @unique
+  passwordHash String?
+  role         Role         @default(READER)
+  createdAt    DateTime     @default(now())
+  
+  // Relations
+  uploadedIssues DailyIssue[]
+}
+
+model DailyIssue {
+  id           String   @id @default(cuid())
+  publishDate  DateTime @unique
+  title        String
+  pdfUrl       String
+  isPublished  Boolean  @default(false)
+  
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  
+  createdAt    DateTime @default(now())
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  confirmed Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
